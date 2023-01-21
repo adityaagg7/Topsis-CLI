@@ -1,19 +1,54 @@
 import sys
 import pandas as pd
 import numpy as np
-
+from sklearn import preprocessing
+import string
 
 argument = sys.argv
-data = argument[1]
-weights = argument[2]
-impacts = argument[3].split(",")
-output = argument[4]
+try:
+    data = argument[1]
+    weights = argument[2]
+    impacts = argument[3]
+    output = argument[4]
+except:
+    sys.exit("\n!!!!ERROR!!!\nTHERE IS SOME PROBLEM WITH THE ARGUMENTS!!!!\nTHE COMMAND TO BE USED IS: \npython3 main.py input_FILENAME.csv \"1,2,3,1,1\" \"\"-\",\"+\",\"+\",\"+\",\"+\"\" output_FILENAME.csv\n\n")
 
-df = pd.read_csv(data, header=0)
+try:
+    df = pd.read_csv(data, header=0)
+except:
+    sys.exit(
+        "\n!!!ERROR!!!\nFILE \'f{data}\' NOT FOUND\n This tool accpets \'CSV\' files only!!\n")
+
 n = df.shape[0]
 c = df.shape[1]
 
+if (c <= 2):
+    sys.exit("!!!!ERROR!!!!\n INPUT DATA SHOULD HAVE ATLEAST 3 COLUMNS!")
+if (len(weights) < c-1 or len(impacts) < c-1):
+    sys.exit(
+        "\n!!!!ERROR!!!!\nTHERE IS SOME PROBLEM WITH THE INPUT ARGUMENTS' LENGTH \n")
+try:
+    weights = [int(i) for i in weights.split(',')]
+except:
+    sys.exit("\n!!!!ERROR!!!\n RECHECK WEIGHTS ASSIGNED!!!]n")
+
+impacts = impacts.split(',')
+for i in impacts:
+    if not (i == '+' or i == '-'):
+        sys.exit("\n!!!ERROR!!!\n RECHECK IMPACTS ASSIGNED!!!\n")
+
+
+for z, i in enumerate(df.iloc[0, 1:]):
+    # print(string.digits)
+
+    if type(i) == str and i in string.ascii_letters:
+
+        label_encoder = preprocessing.LabelEncoder()
+        df.iloc[:, z + 1] = label_encoder.fit_transform(df.iloc[:, z+1])
+print(df)
+
 matrix = np.array(df.drop(['Fund Name'], axis=1))
+print(matrix)
 matrix_sq = np.square(matrix)
 sum_col = np.sum(matrix_sq, axis=0)
 sqrt_sum_col = np.sqrt(sum_col)
@@ -21,7 +56,7 @@ sq_sum_matrix = np.array([sqrt_sum_col]*n)
 normalized_matrix = np.divide(matrix, sq_sum_matrix)
 
 
-weight_matrix = np.array([[int(i) for i in weights.split(",")]]*n)
+weight_matrix = np.array([[int(i) for i in weights]]*n)
 weighed_input = np.multiply(normalized_matrix, weight_matrix)
 
 
