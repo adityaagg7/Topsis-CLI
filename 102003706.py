@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
-import string
+
 
 argument = sys.argv
 try:
@@ -39,16 +39,13 @@ for i in impacts:
 
 
 for z, i in enumerate(df.iloc[0, 1:]):
-    # print(string.digits)
-
-    if type(i) == str and i in string.ascii_letters:
-
+    if type(i) == str:
         label_encoder = preprocessing.LabelEncoder()
         df.iloc[:, z + 1] = label_encoder.fit_transform(df.iloc[:, z+1])
-print(df)
+
 
 matrix = np.array(df.drop(['Fund Name'], axis=1))
-print(matrix)
+
 matrix_sq = np.square(matrix)
 sum_col = np.sum(matrix_sq, axis=0)
 sqrt_sum_col = np.sqrt(sum_col)
